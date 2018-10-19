@@ -1,0 +1,150 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Reconhecimento da base
+
+## Vinhos brancos
+
+Carregando dados e mostrando as 10 primeiras linhas
+```{r}
+brancos = read.csv("winequality-white.csv", header = TRUE, sep = ";");
+head(brancos, 10);
+```
+
+
+Colunas
+```{r}
+colnames(brancos)
+```
+
+Valores NA
+```{r}
+colSums(is.na(brancos))
+```
+
+Tipos
+```{r}
+sapply(brancos, typeof);
+```
+
+https://www.statmethods.net/advgraphs/correlograms.html
+https://stackoverflow.com/questions/16161954/how-to-add-p-values-for-correlation-coefficients-plotted-using-splom-in-lattice
+
+Resumo de características
+```{r}
+summary(brancos);
+```
+
+
+## Vinhos tintos
+
+```{r}
+tintos = read.csv("winequality-red.csv", header = TRUE, sep = ";");
+head(tintos, 10);
+```
+
+# Análise exploratória dos dados
+
+
+## Detecção de outliers
+```{r}
+boxplot(scale(brancos[, -12]))
+```
+
+## Vinho branco
+
+### Plotagem dos dados
+
+### Gráfico de correlação
+```{r}
+library(corrgram)
+cor(brancos)
+corrgram(brancos, order=TRUE, lower.panel=panel.shade,
+  upper.panel=panel.pie, text.panel=panel.txt,
+  main="Wine quality")
+```
+
+### Análise crítica
+
+## Vinho tinto
+
+### Plotagem dos dados
+
+### Gráfico de correlação
+
+### Análise crítica
+
+## Decisão: Vinho branco ou tinto?
+
+## Uso de componentes principais
+
+## Remoção de outliers
+
+
+# Geração de modelos
+
+## Regressão linear
+
+### Sobre a técnica
+
+### Variável dependente
+
+### Variáveis independentes
+
+### Gráfico variável dependente X variáveis independentes
+
+### Qualidade do modelo
+
+### Análise
+
+
+## Árvore de regressão
+
+### Sobre a técnica
+
+### Variável dependente
+
+### Variáveis independentes
+
+### Gráfico variável dependente X variáveis independentes
+
+### Qualidade do modelo
+
+### Análise
+
+
+## Árvore de decisão
+
+### Sobre a técnica
+
+### Variável dependente
+
+### Variáveis independentes
+
+### Gráfico variável dependente X variáveis independentes
+
+### Qualidade do modelo
+
+### Análise
+
+
+## Regressão logística
+
+### Sobre a técnica
+
+### Variável dependente
+
+### Variáveis independentes
+
+### Gráfico variável dependente X variáveis independentes
+
+### Qualidade do modelo
+
+### Análise
+
+
+
+
+
