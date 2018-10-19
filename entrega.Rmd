@@ -111,40 +111,109 @@ boxplot(chlorides~quality, data=tintos, main='Boxplot de chlorides por qualidade
 Resposta: As relacoes entre as variaveis e a qualidade dos vinhos apresentam uma grande distincao entre vinhos tintos e brancos. Por esse motivo, modelos simplificados como, regressoes lineares e regressoes logisticas teriam dificuldade com a uniao das bases. Ja modelos como arvore de decisao e rendom forest conseguem lidar facilmente com categorias distintas em um mesmo modelo.
 
 ## Uso de componentes principais:
-Resposta: Na analise de correlacoes e possivel verificar que existem variaveis com grande correlacao entre si, como: acides e ph, acides fixa e acides citrica, dioxido total e livre. Essas correlacoes entre variaveis independentes podem causar multicolinearidade no modelo, podendo resultar em overfiting e perda de generalizacao. Por isso o uso de componentes principais pode trazer ganhos.
+Resposta: Na analise de correlacoes e possivel verificar que existem variaveis com alguma correlacao entre si, como: acides e ph, acides fixa e acides citrica, dioxido total e livre. Essas correlacoes entre variaveis independentes podem causar multicolinearidade no modelo, podendo resultar em overfiting e perda de generalizacao. Porem, nehuma delas é maior que 0.68, então não sera necessario o uso de PCA.
 
 ## Remocao de outliers
 Resposta: A analise de deteccao de outliers apresentou uma quantidade muito grande de outliers na base, porem, se existem tantos outliers, provavelmente nao sao. Nossa abordagem sera manter todos os dados na base.
 
 # Geracao de modelos
 
-## Regressao linear
+## Separacao dos dados em treino e teste
+```{r}
+sample_tintos <- sample.int(n = nrow(tintos), size = floor(.75*nrow(tintos)), replace = F)
+tintos_train <- tintos[sample_tintos, ]
+tintos_test  <- tintos[-sample_tintos, ]
 
+sample_brancos <- sample.int(n = nrow(brancos), size = floor(.75*nrow(brancos)), replace = F)
+brancos_train <- brancos[sample_brancos, ]
+brancos_test  <- brancos[-sample_brancos, ]
+```
+
+## Regressao linear
+```{r}
+linear_model_tintos = lm(quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar +      
+                chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH +
+                sulphates + alcohol, data=tintos_train)
+summary(linear_model_tintos)
+```
+```{r}
+linear_model_brancos = lm(quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar +      
+                chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH +
+                sulphates + alcohol, data=brancos_train)
+summary(linear_model_brancos)
+```
 ### Sobre a tecnica
 
 ### Variavel dependente
+Resposta: Quality
 
 ### Variaveis independentes
+Resposta: fixed.acidity + volatile.acidity + citric.acid + residual.sugar +      
+          chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH +
+          sulphates + alcohol
 
 ### Grafico variavel dependente X variaveis independentes
 
 ### Qualidade do modelo
+
+#### Percentual de acerto da regressão linear na base de teste dos vinhos tintos
+```{r}
+prediction_lm_tintos = predict(linear_model_tintos, tintos_test)
+accuracy_lm_tintos = 1 - (sum(abs(tintos_test$quality - prediction_lm_tintos)) / sum(tintos_test$quality))
+print(accuracy_lm_tintos)
+```
+#### Percentual de acerto da regressão linear na base de teste dos vinhos brancos
+```{r}
+prediction_lm_brancos = predict(linear_model_brancos, brancos_test)
+accuracy_lm_brancos = 1 - (sum(abs(brancos_test$quality - prediction_lm_brancos)) / sum(brancos_test$quality))
+print(accuracy_lm_brancos)
+```
 
 ### Analise
 
 
-## Arvore de regressÃ£o
+## Arvore de regressao
+
+### Tintos
+```{r}
+library(tree)
+decision_tree_tintos = tree(quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar +      
+                chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH +
+                sulphates + alcohol, data=tintos_train)
+plot(decision_tree_tintos)
+text(decision_tree_tintos, cex=0.7)
+summary(decision_tree_tintos)
+```
+
+### Brancos
+```{r}
+library(tree)
+decision_tree_brancos = tree(quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar +      
+                chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH +
+                sulphates + alcohol, data=brancos_train)
+plot(decision_tree_brancos)
+text(decision_tree_brancos, cex=0.7)
+summary(decision_tree_brancos)
+```
 
 ### Sobre a tecnica
-
-### Variavel dependente
-
-### Variaveis independentes
 
 ### Grafico variavel dependente X variaveis independentes
 
 ### Qualidade do modelo
 
+#### Percentual de acerto da arvore de regressao na base de teste dos vinhos tintos
+```{r}
+prediction_rt_tintos = predict(decision_tree_tintos, tintos_test)
+accuracy_rt_tintos = 1 - (sum(abs(tintos_test$quality - prediction_rt_tintos)) / sum(tintos_test$quality))
+print(accuracy_rt_tintos)
+```
+#### Percentual de acerto da arvore de regressao na base de teste dos vinhos brancos
+```{r}
+prediction_rt_brancos = predict(decision_tree_brancos, brancos_test)
+accuracy_rt_brancos = 1 - (sum(abs(brancos_test$quality - prediction_rt_brancos)) / sum(brancos_test$quality))
+print(accuracy_rt_brancos)
+```
 ### Analise
 
 

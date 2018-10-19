@@ -484,7 +484,7 @@ quality                       -0.18510029 -0.17491923 -0.05773139  0.251397079  
 </div>
 <div id="uso-de-componentes-principais" class="section level2">
 <h2>Uso de componentes principais:</h2>
-<p>Resposta: Na analise de correlacoes e possivel verificar que existem variaveis com grande correlacao entre si, como: acides e ph, acides fixa e acides citrica, dioxido total e livre. Essas correlacoes entre variaveis independentes podem causar multicolinearidade no modelo, podendo resultar em overfiting e perda de generalizacao. Por isso o uso de componentes principais pode trazer ganhos.</p>
+<p>Resposta: Na analise de correlacoes e possivel verificar que existem variaveis com alguma correlacao entre si, como: acides e ph, acides fixa e acides citrica, dioxido total e livre. Essas correlacoes entre variaveis independentes podem causar multicolinearidade no modelo, podendo resultar em overfiting e perda de generalizacao. Porem, nehuma delas é maior que 0.68, então não sera necessario o uso de PCA.</p>
 </div>
 <div id="remocao-de-outliers" class="section level2">
 <h2>Remocao de outliers</h2>
@@ -493,43 +493,268 @@ quality                       -0.18510029 -0.17491923 -0.05773139  0.251397079  
 </div>
 <div id="geracao-de-modelos" class="section level1">
 <h1>Geracao de modelos</h1>
+<div id="separacao-dos-dados-em-treino-e-teste" class="section level2">
+<h2>Separacao dos dados em treino e teste</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2FtcGxlX3RpbnRvcyA8LSBzYW1wbGUuaW50KG4gPSBucm93KHRpbnRvcyksIHNpemUgPSBmbG9vciguNzUqbnJvdyh0aW50b3MpKSwgcmVwbGFjZSA9IEYpXG50aW50b3NfdHJhaW4gPC0gdGludG9zW3NhbXBsZV90aW50b3MsIF1cbnRpbnRvc190ZXN0ICA8LSB0aW50b3NbLXNhbXBsZV90aW50b3MsIF1cbnNhbXBsZV9icmFuY29zIDwtIHNhbXBsZS5pbnQobiA9IG5yb3coYnJhbmNvcyksIHNpemUgPSBmbG9vciguNzUqbnJvdyhicmFuY29zKSksIHJlcGxhY2UgPSBGKVxuYnJhbmNvc190cmFpbiA8LSBicmFuY29zW3NhbXBsZV9icmFuY29zLCBdXG5icmFuY29zX3Rlc3QgIDwtIGJyYW5jb3NbLXNhbXBsZV9icmFuY29zLCBdXG5gYGAifQ== -->
+<pre class="r"><code>sample_tintos &lt;- sample.int(n = nrow(tintos), size = floor(.75*nrow(tintos)), replace = F)
+tintos_train &lt;- tintos[sample_tintos, ]
+tintos_test  &lt;- tintos[-sample_tintos, ]
+sample_brancos &lt;- sample.int(n = nrow(brancos), size = floor(.75*nrow(brancos)), replace = F)
+brancos_train &lt;- brancos[sample_brancos, ]
+brancos_test  &lt;- brancos[-sample_brancos, ]</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
 <div id="regressao-linear" class="section level2">
 <h2>Regressao linear</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGluZWFyX21vZGVsX3RpbnRvcyA9IGxtKHF1YWxpdHkgfiBmaXhlZC5hY2lkaXR5ICsgdm9sYXRpbGUuYWNpZGl0eSArIGNpdHJpYy5hY2lkICsgcmVzaWR1YWwuc3VnYXIgKyAgICAgIFxuICAgICAgICAgICAgICAgIGNobG9yaWRlcyArIGZyZWUuc3VsZnVyLmRpb3hpZGUgKyB0b3RhbC5zdWxmdXIuZGlveGlkZSArIGRlbnNpdHkgKyBwSCArXG4gICAgICAgICAgICAgICAgc3VscGhhdGVzICsgYWxjb2hvbCwgZGF0YT10aW50b3NfdHJhaW4pXG5zdW1tYXJ5KGxpbmVhcl9tb2RlbF90aW50b3MpXG5gYGAifQ== -->
+<pre class="r"><code>linear_model_tintos = lm(quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar +      
+                chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH +
+                sulphates + alcohol, data=tintos_train)
+summary(linear_model_tintos)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5DYWxsOlxubG0oZm9ybXVsYSA9IHF1YWxpdHkgfiBmaXhlZC5hY2lkaXR5ICsgdm9sYXRpbGUuYWNpZGl0eSArIGNpdHJpYy5hY2lkICsgXG4gICAgcmVzaWR1YWwuc3VnYXIgKyBjaGxvcmlkZXMgKyBmcmVlLnN1bGZ1ci5kaW94aWRlICsgdG90YWwuc3VsZnVyLmRpb3hpZGUgKyBcbiAgICBkZW5zaXR5ICsgcEggKyBzdWxwaGF0ZXMgKyBhbGNvaG9sLCBkYXRhID0gdGludG9zX3RyYWluKVxuXG5SZXNpZHVhbHM6XG4gICAgIE1pbiAgICAgICAxUSAgIE1lZGlhbiAgICAgICAzUSAgICAgIE1heCBcbi0yLjY0MTU0IC0wLjM3NDc2IC0wLjA0NDkzICAwLjQyMzI5ICAyLjA0ODIwIFxuXG5Db2VmZmljaWVudHM6XG4gICAgICAgICAgICAgICAgICAgICAgIEVzdGltYXRlIFN0ZC4gRXJyb3IgdCB2YWx1ZSBQcig+fHR8KSAgICBcbihJbnRlcmNlcHQpICAgICAgICAgICAyLjg3NGUrMDEgIDIuNDU3ZSswMSAgIDEuMTcwIDAuMjQyMzM2ICAgIFxuZml4ZWQuYWNpZGl0eSAgICAgICAgIDEuNjQyZS0wMiAgMy4wMzdlLTAyICAgMC41NDAgMC41ODg5NTQgICAgXG52b2xhdGlsZS5hY2lkaXR5ICAgICAtMS4xOTFlKzAwICAxLjQ0NWUtMDEgIC04LjI0NyA0LjI2ZS0xNiAqKipcbmNpdHJpYy5hY2lkICAgICAgICAgIC0xLjk0NGUtMDEgIDEuNzExZS0wMSAgLTEuMTM2IDAuMjU2MDU1ICAgIFxucmVzaWR1YWwuc3VnYXIgICAgICAgIDEuODk5ZS0wMiAgMS42NzdlLTAyICAgMS4xMzIgMC4yNTc2OTYgICAgXG5jaGxvcmlkZXMgICAgICAgICAgICAtMS43NTllKzAwICA0Ljk5NWUtMDEgIC0zLjUyMSAwLjAwMDQ0NiAqKipcbmZyZWUuc3VsZnVyLmRpb3hpZGUgICAzLjk5N2UtMDMgIDIuNDkyZS0wMyAgIDEuNjA0IDAuMTA4OTY1ICAgIFxudG90YWwuc3VsZnVyLmRpb3hpZGUgLTMuODA1ZS0wMyAgOC40NzVlLTA0ICAtNC40OTAgNy44M2UtMDYgKioqXG5kZW5zaXR5ICAgICAgICAgICAgICAtMi40NTllKzAxICAyLjUwOGUrMDEgIC0wLjk4MCAwLjMyNzE4NiAgICBcbnBIICAgICAgICAgICAgICAgICAgIC0zLjcxMmUtMDEgIDIuMjI3ZS0wMSAgLTEuNjY3IDAuMDk1ODU5IC4gIFxuc3VscGhhdGVzICAgICAgICAgICAgIDcuOTQxZS0wMSAgMS4yNjBlLTAxICAgNi4zMDEgNC4xNmUtMTAgKioqXG5hbGNvaG9sICAgICAgICAgICAgICAgMi43NDllLTAxICAzLjA3M2UtMDIgICA4Ljk0NyAgPCAyZS0xNiAqKipcbi0tLVxuU2lnbmlmLiBjb2RlczogIDAg4oCYKioq4oCZIDAuMDAxIOKAmCoq4oCZIDAuMDEg4oCYKuKAmSAwLjA1IOKAmC7igJkgMC4xIOKAmCDigJkgMVxuXG5SZXNpZHVhbCBzdGFuZGFyZCBlcnJvcjogMC42NDcxIG9uIDExODcgZGVncmVlcyBvZiBmcmVlZG9tXG5NdWx0aXBsZSBSLXNxdWFyZWQ6ICAwLjM2NDUsXHRBZGp1c3RlZCBSLXNxdWFyZWQ6ICAwLjM1ODYgXG5GLXN0YXRpc3RpYzogNjEuODggb24gMTEgYW5kIDExODcgREYsICBwLXZhbHVlOiA8IDIuMmUtMTZcbiJ9 -->
+<pre><code>
+Call:
+lm(formula = quality ~ fixed.acidity + volatile.acidity + citric.acid + 
+    residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + 
+    density + pH + sulphates + alcohol, data = tintos_train)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.64154 -0.37476 -0.04493  0.42329  2.04820 
+
+Coefficients:
+                       Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)           2.874e+01  2.457e+01   1.170 0.242336    
+fixed.acidity         1.642e-02  3.037e-02   0.540 0.588954    
+volatile.acidity     -1.191e+00  1.445e-01  -8.247 4.26e-16 ***
+citric.acid          -1.944e-01  1.711e-01  -1.136 0.256055    
+residual.sugar        1.899e-02  1.677e-02   1.132 0.257696    
+chlorides            -1.759e+00  4.995e-01  -3.521 0.000446 ***
+free.sulfur.dioxide   3.997e-03  2.492e-03   1.604 0.108965    
+total.sulfur.dioxide -3.805e-03  8.475e-04  -4.490 7.83e-06 ***
+density              -2.459e+01  2.508e+01  -0.980 0.327186    
+pH                   -3.712e-01  2.227e-01  -1.667 0.095859 .  
+sulphates             7.941e-01  1.260e-01   6.301 4.16e-10 ***
+alcohol               2.749e-01  3.073e-02   8.947  &lt; 2e-16 ***
+---
+Signif. codes:  0 *** 0.001 ** 0.01 * 0.05 . 0.1   1
+
+Residual standard error: 0.6471 on 1187 degrees of freedom
+Multiple R-squared:  0.3645,    Adjusted R-squared:  0.3586 
+F-statistic: 61.88 on 11 and 1187 DF,  p-value: &lt; 2.2e-16</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGluZWFyX21vZGVsX2JyYW5jb3MgPSBsbShxdWFsaXR5IH4gZml4ZWQuYWNpZGl0eSArIHZvbGF0aWxlLmFjaWRpdHkgKyBjaXRyaWMuYWNpZCArIHJlc2lkdWFsLnN1Z2FyICsgICAgICBcbiAgICAgICAgICAgICAgICBjaGxvcmlkZXMgKyBmcmVlLnN1bGZ1ci5kaW94aWRlICsgdG90YWwuc3VsZnVyLmRpb3hpZGUgKyBkZW5zaXR5ICsgcEggK1xuICAgICAgICAgICAgICAgIHN1bHBoYXRlcyArIGFsY29ob2wsIGRhdGE9YnJhbmNvc190cmFpbilcbnN1bW1hcnkobGluZWFyX21vZGVsX2JyYW5jb3MpXG5gYGAifQ== -->
+<pre class="r"><code>linear_model_brancos = lm(quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar +      
+                chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH +
+                sulphates + alcohol, data=brancos_train)
+summary(linear_model_brancos)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5DYWxsOlxubG0oZm9ybXVsYSA9IHF1YWxpdHkgfiBmaXhlZC5hY2lkaXR5ICsgdm9sYXRpbGUuYWNpZGl0eSArIGNpdHJpYy5hY2lkICsgXG4gICAgcmVzaWR1YWwuc3VnYXIgKyBjaGxvcmlkZXMgKyBmcmVlLnN1bGZ1ci5kaW94aWRlICsgdG90YWwuc3VsZnVyLmRpb3hpZGUgKyBcbiAgICBkZW5zaXR5ICsgcEggKyBzdWxwaGF0ZXMgKyBhbGNvaG9sLCBkYXRhID0gYnJhbmNvc190cmFpbilcblxuUmVzaWR1YWxzOlxuICAgIE1pbiAgICAgIDFRICBNZWRpYW4gICAgICAzUSAgICAgTWF4IFxuLTMuNzI2NSAtMC40OTU5IC0wLjAzMDUgIDAuNDcyMSAgMi40NzM4IFxuXG5Db2VmZmljaWVudHM6XG4gICAgICAgICAgICAgICAgICAgICAgIEVzdGltYXRlIFN0ZC4gRXJyb3IgdCB2YWx1ZSBQcig+fHR8KSAgICBcbihJbnRlcmNlcHQpICAgICAgICAgICAxLjM4OGUrMDIgIDIuMDcyZSswMSAgIDYuNzAwIDIuNDBlLTExICoqKlxuZml4ZWQuYWNpZGl0eSAgICAgICAgIDQuNDk2ZS0wMiAgMi4zNjdlLTAyICAgMS45MDAgIDAuMDU3NTIgLiAgXG52b2xhdGlsZS5hY2lkaXR5ICAgICAtMS45MjBlKzAwICAxLjMzOGUtMDEgLTE0LjM1NiAgPCAyZS0xNiAqKipcbmNpdHJpYy5hY2lkICAgICAgICAgICAzLjY4MGUtMDIgIDEuMDkyZS0wMSAgIDAuMzM3ICAwLjczNjAzICAgIFxucmVzaWR1YWwuc3VnYXIgICAgICAgIDcuOTc2ZS0wMiAgOC40NDZlLTAzICAgOS40NDQgIDwgMmUtMTYgKioqXG5jaGxvcmlkZXMgICAgICAgICAgICAtMi42MzhlLTAxICA2LjEzMWUtMDEgIC0wLjQzMCAgMC42NjY5OSAgICBcbmZyZWUuc3VsZnVyLmRpb3hpZGUgICAzLjE1NGUtMDMgIDkuODA3ZS0wNCAgIDMuMjE2ICAwLjAwMTMxICoqIFxudG90YWwuc3VsZnVyLmRpb3hpZGUgLTEuODc1ZS0wNCAgNC40MDJlLTA0ICAtMC40MjYgIDAuNjcwMjAgICAgXG5kZW5zaXR5ICAgICAgICAgICAgICAtMS4zODdlKzAyICAyLjEwMmUrMDEgIC02LjU5OSA0LjcyZS0xMSAqKipcbnBIICAgICAgICAgICAgICAgICAgICA2LjY0NWUtMDEgIDEuMjA3ZS0wMSAgIDUuNTA2IDMuOTJlLTA4ICoqKlxuc3VscGhhdGVzICAgICAgICAgICAgIDYuMDU2ZS0wMSAgMS4xNjllLTAxICAgNS4xODEgMi4zM2UtMDcgKioqXG5hbGNvaG9sICAgICAgICAgICAgICAgMi4wODllLTAxICAyLjY4M2UtMDIgICA3Ljc4NiA4Ljk0ZS0xNSAqKipcbi0tLVxuU2lnbmlmLiBjb2RlczogIDAg4oCYKioq4oCZIDAuMDAxIOKAmCoq4oCZIDAuMDEg4oCYKuKAmSAwLjA1IOKAmC7igJkgMC4xIOKAmCDigJkgMVxuXG5SZXNpZHVhbCBzdGFuZGFyZCBlcnJvcjogMC43NTggb24gMzY2MSBkZWdyZWVzIG9mIGZyZWVkb21cbk11bHRpcGxlIFItc3F1YXJlZDogIDAuMjc4MixcdEFkanVzdGVkIFItc3F1YXJlZDogIDAuMjc2MSBcbkYtc3RhdGlzdGljOiAxMjguMyBvbiAxMSBhbmQgMzY2MSBERiwgIHAtdmFsdWU6IDwgMi4yZS0xNlxuIn0= -->
+<pre><code>
+Call:
+lm(formula = quality ~ fixed.acidity + volatile.acidity + citric.acid + 
+    residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + 
+    density + pH + sulphates + alcohol, data = brancos_train)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-3.7265 -0.4959 -0.0305  0.4721  2.4738 
+
+Coefficients:
+                       Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)           1.388e+02  2.072e+01   6.700 2.40e-11 ***
+fixed.acidity         4.496e-02  2.367e-02   1.900  0.05752 .  
+volatile.acidity     -1.920e+00  1.338e-01 -14.356  &lt; 2e-16 ***
+citric.acid           3.680e-02  1.092e-01   0.337  0.73603    
+residual.sugar        7.976e-02  8.446e-03   9.444  &lt; 2e-16 ***
+chlorides            -2.638e-01  6.131e-01  -0.430  0.66699    
+free.sulfur.dioxide   3.154e-03  9.807e-04   3.216  0.00131 ** 
+total.sulfur.dioxide -1.875e-04  4.402e-04  -0.426  0.67020    
+density              -1.387e+02  2.102e+01  -6.599 4.72e-11 ***
+pH                    6.645e-01  1.207e-01   5.506 3.92e-08 ***
+sulphates             6.056e-01  1.169e-01   5.181 2.33e-07 ***
+alcohol               2.089e-01  2.683e-02   7.786 8.94e-15 ***
+---
+Signif. codes:  0 *** 0.001 ** 0.01 * 0.05 . 0.1   1
+
+Residual standard error: 0.758 on 3661 degrees of freedom
+Multiple R-squared:  0.2782,    Adjusted R-squared:  0.2761 
+F-statistic: 128.3 on 11 and 3661 DF,  p-value: &lt; 2.2e-16</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <div id="sobre-a-tecnica" class="section level3">
 <h3>Sobre a tecnica</h3>
 </div>
 <div id="variavel-dependente" class="section level3">
 <h3>Variavel dependente</h3>
+<p>Resposta: Quality</p>
 </div>
 <div id="variaveis-independentes" class="section level3">
 <h3>Variaveis independentes</h3>
+<p>Resposta: fixed.acidity + volatile.acidity + citric.acid + residual.sugar +<br />
+chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH + sulphates + alcohol</p>
 </div>
 <div id="grafico-variavel-dependente-x-variaveis-independentes" class="section level3">
 <h3>Grafico variavel dependente X variaveis independentes</h3>
 </div>
 <div id="qualidade-do-modelo" class="section level3">
 <h3>Qualidade do modelo</h3>
+<div id="percentual-de-acerto-da-regressao-linear-na-base-de-teste-dos-vinhos-tintos" class="section level4">
+<h4>Percentual de acerto da regressão linear na base de teste dos vinhos tintos</h4>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJlZGljdGlvbl9sbV90aW50b3MgPSBwcmVkaWN0KGxpbmVhcl9tb2RlbF90aW50b3MsIHRpbnRvc190ZXN0KVxuYWNjdXJhY3lfbG1fdGludG9zID0gMSAtIChzdW0oYWJzKHRpbnRvc190ZXN0JHF1YWxpdHkgLSBwcmVkaWN0aW9uX2xtX3RpbnRvcykpIC8gc3VtKHRpbnRvc190ZXN0JHF1YWxpdHkpKVxucHJpbnQoYWNjdXJhY3lfbG1fdGludG9zKVxuYGBgIn0= -->
+<pre class="r"><code>prediction_lm_tintos = predict(linear_model_tintos, tintos_test)
+accuracy_lm_tintos = 1 - (sum(abs(tintos_test$quality - prediction_lm_tintos)) / sum(tintos_test$quality))
+print(accuracy_lm_tintos)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuOTA4OTA2NVxuIn0= -->
+<pre><code>[1] 0.9089065</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="percentual-de-acerto-da-regressao-linear-na-base-de-teste-dos-vinhos-brancos" class="section level4">
+<h4>Percentual de acerto da regressão linear na base de teste dos vinhos brancos</h4>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJlZGljdGlvbl9sbV9icmFuY29zID0gcHJlZGljdChsaW5lYXJfbW9kZWxfYnJhbmNvcywgYnJhbmNvc190ZXN0KVxuYWNjdXJhY3lfbG1fYnJhbmNvcyA9IDEgLSAoc3VtKGFicyhicmFuY29zX3Rlc3QkcXVhbGl0eSAtIHByZWRpY3Rpb25fbG1fYnJhbmNvcykpIC8gc3VtKGJyYW5jb3NfdGVzdCRxdWFsaXR5KSlcbnByaW50KGFjY3VyYWN5X2xtX2JyYW5jb3MpXG5gYGAifQ== -->
+<pre class="r"><code>prediction_lm_brancos = predict(linear_model_brancos, brancos_test)
+accuracy_lm_brancos = 1 - (sum(abs(brancos_test$quality - prediction_lm_brancos)) / sum(brancos_test$quality))
+print(accuracy_lm_brancos)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuOTAyNjY3NlxuIn0= -->
+<pre><code>[1] 0.9026676</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
 </div>
 <div id="analise" class="section level3">
 <h3>Analise</h3>
 </div>
 </div>
 <div id="arvore-de-regressao" class="section level2">
-<h2>Arvore de regressÃ£o</h2>
+<h2>Arvore de regressao</h2>
+<div id="tintos" class="section level3">
+<h3>Tintos</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0cmVlKVxuZGVjaXNpb25fdHJlZV90aW50b3MgPSB0cmVlKHF1YWxpdHkgfiBmaXhlZC5hY2lkaXR5ICsgdm9sYXRpbGUuYWNpZGl0eSArIGNpdHJpYy5hY2lkICsgcmVzaWR1YWwuc3VnYXIgKyAgICAgIFxuICAgICAgICAgICAgICAgIGNobG9yaWRlcyArIGZyZWUuc3VsZnVyLmRpb3hpZGUgKyB0b3RhbC5zdWxmdXIuZGlveGlkZSArIGRlbnNpdHkgKyBwSCArXG4gICAgICAgICAgICAgICAgc3VscGhhdGVzICsgYWxjb2hvbCwgZGF0YT10aW50b3NfdHJhaW4pXG5wbG90KGRlY2lzaW9uX3RyZWVfdGludG9zKVxudGV4dChkZWNpc2lvbl90cmVlX3RpbnRvcywgY2V4PTAuNylcbmBgYCJ9 -->
+<pre class="r"><code>library(tree)
+decision_tree_tintos = tree(quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar +      
+                chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH +
+                sulphates + alcohol, data=tintos_train)
+plot(decision_tree_tintos)
+text(decision_tree_tintos, cex=0.7)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-plot-begin eyJjb25kaXRpb25zIjpbXSwiaGVpZ2h0Ijo0MzIuNjMyOSwic2l6ZV9iZWhhdmlvciI6MCwid2lkdGgiOjcwMH0= -->
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAArwAAAGwCAMAAAB8TkaXAAAAk1BMVEUAAAAAADoAAGYAOjoAOmYAOpAAZmYAZrY6AAA6ADo6AGY6OgA6OmY6OpA6ZrY6kNtmAABmADpmAGZmOgBmOjpmOmZmOpBmZjpmkJBmtv+QOgCQOjqQOmaQZgCQ2/+2ZgC2Zjq2kDq225C2/7a2/9u2///bkDrbtmbb25Db/7bb////tmb/25D/29v//7b//9v///+hpVRVAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAW3ElEQVR4nO2dDXviyJlF1Z04ds+OF3cmH0tP1uxutjXThtj6/78uqiqpVAgECEriPXDPkzAyLdDlcpHqW0UlBJTi2gKEOBeFV2BReAUWhVdgUXgFFoVXYFF4BRaFV2BReAUWhVdgUXgFFoVXYFF4BRaFV2BReAUWhVdgUXgFFoVXYFF4BRaFV2BReAUWhVdgUXgFFoVXYFF4BRaFV2BReAUWhVdgUXgFFoVXYFF4BRaFV2BReAUWhVdgUXgFFoVXYFF4BRaFV2BReM9k8/w28Nf2v1TV+5+/V9W6KJb+r1VRfP7+8a0oHpvtOcTeKArvmZwc3veXOqDvX183P7mcfvz6Wj+Wj9XHt2XYFmej8I6ndKfNOqKbJ3firP9aVJuff3Gn0rDdhLeOp3v8xz/rM2/9XIhqiLB/l0W3Lc5C4R1NHcS6JLB5/vH1tT6F1gl0p9Uvr+65sO3Du3n61JxXXbFh7QoJLsvrPzy5lPtn47Y4D4V3PPUZ91Md0d99SEMsw5k1btfn1YdYdtgKb/Wvt6qsN+qQx21xJgrvaNafw/n1YHh7Z95YbHCUddHiy2vcFuei8I6mjujanXldsWH98HtbVKjDuVVs+On/v4WzqgtvrLC5fJfLdPuaHwWOwjua95fiTy/LtMK2bM+s7XaV1sy6pjK3tXJ1uvqh+Y9OvBeg8E6EmhKmR+GdCIV3ehTeiVB4p0fhnQiFd3qY4S1ENq79XV4AUztANeXMC7ByEKZ2gGqFd3qY2gGqFd7pYWoHqFZ4p4epHaBa4Z0epnaAaoV3epjaAaoV3ulhageoVninh6mdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2kqmdqdokZCuZ2pmqTUK2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" /></p>
+<!-- rnb-plot-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShkZWNpc2lvbl90cmVlX3RpbnRvcylcbmBgYCJ9 -->
+<pre class="r"><code>summary(decision_tree_tintos)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5SZWdyZXNzaW9uIHRyZWU6XG50cmVlKGZvcm11bGEgPSBxdWFsaXR5IH4gZml4ZWQuYWNpZGl0eSArIHZvbGF0aWxlLmFjaWRpdHkgKyBjaXRyaWMuYWNpZCArIFxuICAgIHJlc2lkdWFsLnN1Z2FyICsgY2hsb3JpZGVzICsgZnJlZS5zdWxmdXIuZGlveGlkZSArIHRvdGFsLnN1bGZ1ci5kaW94aWRlICsgXG4gICAgZGVuc2l0eSArIHBIICsgc3VscGhhdGVzICsgYWxjb2hvbCwgZGF0YSA9IHRpbnRvc190cmFpbilcblZhcmlhYmxlcyBhY3R1YWxseSB1c2VkIGluIHRyZWUgY29uc3RydWN0aW9uOlxuWzFdIFwiYWxjb2hvbFwiICAgICAgICAgICAgICBcInZvbGF0aWxlLmFjaWRpdHlcIiAgICAgXCJzdWxwaGF0ZXNcIiAgICAgICAgICAgIFwidG90YWwuc3VsZnVyLmRpb3hpZGVcIlxuWzVdIFwicEhcIiAgICAgICAgICAgICAgICAgIFxuTnVtYmVyIG9mIHRlcm1pbmFsIG5vZGVzOiAgMTMgXG5SZXNpZHVhbCBtZWFuIGRldmlhbmNlOiAgMC4zOTQ1ID0gNDY3LjkgLyAxMTg2IFxuRGlzdHJpYnV0aW9uIG9mIHJlc2lkdWFsczpcbiAgICBNaW4uICAxc3QgUXUuICAgTWVkaWFuICAgICBNZWFuICAzcmQgUXUuICAgICBNYXguIFxuLTIuNTYwMDAgLTAuNTA1OTAgLTAuMDk1MjQgIDAuMDAwMDAgIDAuNDM5NzAgIDEuOTA1MDAgXG4ifQ== -->
+<pre><code>
+Regression tree:
+tree(formula = quality ~ fixed.acidity + volatile.acidity + citric.acid + 
+    residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + 
+    density + pH + sulphates + alcohol, data = tintos_train)
+Variables actually used in tree construction:
+[1] &quot;alcohol&quot;              &quot;volatile.acidity&quot;     &quot;sulphates&quot;            &quot;total.sulfur.dioxide&quot;
+[5] &quot;pH&quot;                  
+Number of terminal nodes:  13 
+Residual mean deviance:  0.3945 = 467.9 / 1186 
+Distribution of residuals:
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+-2.56000 -0.50590 -0.09524  0.00000  0.43970  1.90500 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="brancos" class="section level3">
+<h3>Brancos</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0cmVlKVxuZGVjaXNpb25fdHJlZV9icmFuY29zID0gdHJlZShxdWFsaXR5IH4gZml4ZWQuYWNpZGl0eSArIHZvbGF0aWxlLmFjaWRpdHkgKyBjaXRyaWMuYWNpZCArIHJlc2lkdWFsLnN1Z2FyICsgICAgICBcbiAgICAgICAgICAgICAgICBjaGxvcmlkZXMgKyBmcmVlLnN1bGZ1ci5kaW94aWRlICsgdG90YWwuc3VsZnVyLmRpb3hpZGUgKyBkZW5zaXR5ICsgcEggK1xuICAgICAgICAgICAgICAgIHN1bHBoYXRlcyArIGFsY29ob2wsIGRhdGE9YnJhbmNvc190cmFpbilcbnBsb3QoZGVjaXNpb25fdHJlZV9icmFuY29zKVxudGV4dChkZWNpc2lvbl90cmVlX2JyYW5jb3MsIGNleD0wLjcpXG5gYGAifQ== -->
+<pre class="r"><code>library(tree)
+decision_tree_brancos = tree(quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar +      
+                chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH +
+                sulphates + alcohol, data=brancos_train)
+plot(decision_tree_brancos)
+text(decision_tree_brancos, cex=0.7)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-plot-begin eyJjb25kaXRpb25zIjpbXSwiaGVpZ2h0Ijo0MzIuNjMyOSwic2l6ZV9iZWhhdmlvciI6MCwid2lkdGgiOjcwMH0= -->
+<p><img src="data:image/png;base64,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" /></p>
+<!-- rnb-plot-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShkZWNpc2lvbl90cmVlX2JyYW5jb3MpXG5gYGAifQ== -->
+<pre class="r"><code>summary(decision_tree_brancos)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5SZWdyZXNzaW9uIHRyZWU6XG50cmVlKGZvcm11bGEgPSBxdWFsaXR5IH4gZml4ZWQuYWNpZGl0eSArIHZvbGF0aWxlLmFjaWRpdHkgKyBjaXRyaWMuYWNpZCArIFxuICAgIHJlc2lkdWFsLnN1Z2FyICsgY2hsb3JpZGVzICsgZnJlZS5zdWxmdXIuZGlveGlkZSArIHRvdGFsLnN1bGZ1ci5kaW94aWRlICsgXG4gICAgZGVuc2l0eSArIHBIICsgc3VscGhhdGVzICsgYWxjb2hvbCwgZGF0YSA9IGJyYW5jb3NfdHJhaW4pXG5WYXJpYWJsZXMgYWN0dWFsbHkgdXNlZCBpbiB0cmVlIGNvbnN0cnVjdGlvbjpcblsxXSBcImFsY29ob2xcIiAgICAgICAgICAgICBcInZvbGF0aWxlLmFjaWRpdHlcIiAgICBcImZyZWUuc3VsZnVyLmRpb3hpZGVcIlxuTnVtYmVyIG9mIHRlcm1pbmFsIG5vZGVzOiAgNSBcblJlc2lkdWFsIG1lYW4gZGV2aWFuY2U6ICAwLjU4NTMgPSAyMTQ3IC8gMzY2OCBcbkRpc3RyaWJ1dGlvbiBvZiByZXNpZHVhbHM6XG4gICBNaW4uIDFzdCBRdS4gIE1lZGlhbiAgICBNZWFuIDNyZCBRdS4gICAgTWF4LiBcbi0zLjYyNDAgLTAuMzU0MSAgMC4xMTM5ICAwLjAwMDAgIDAuNjQ1OSAgMi42ODQwIFxuIn0= -->
+<pre><code>
+Regression tree:
+tree(formula = quality ~ fixed.acidity + volatile.acidity + citric.acid + 
+    residual.sugar + chlorides + free.sulfur.dioxide + total.sulfur.dioxide + 
+    density + pH + sulphates + alcohol, data = brancos_train)
+Variables actually used in tree construction:
+[1] &quot;alcohol&quot;             &quot;volatile.acidity&quot;    &quot;free.sulfur.dioxide&quot;
+Number of terminal nodes:  5 
+Residual mean deviance:  0.5853 = 2147 / 3668 
+Distribution of residuals:
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-3.6240 -0.3541  0.1139  0.0000  0.6459  2.6840 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
 <div id="sobre-a-tecnica-1" class="section level3">
 <h3>Sobre a tecnica</h3>
-</div>
-<div id="variavel-dependente-1" class="section level3">
-<h3>Variavel dependente</h3>
-</div>
-<div id="variaveis-independentes-1" class="section level3">
-<h3>Variaveis independentes</h3>
 </div>
 <div id="grafico-variavel-dependente-x-variaveis-independentes-1" class="section level3">
 <h3>Grafico variavel dependente X variaveis independentes</h3>
 </div>
 <div id="qualidade-do-modelo-1" class="section level3">
 <h3>Qualidade do modelo</h3>
+<div id="percentual-de-acerto-da-arvore-de-regressao-na-base-de-teste-dos-vinhos-tintos" class="section level4">
+<h4>Percentual de acerto da arvore de regressao na base de teste dos vinhos tintos</h4>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJlZGljdGlvbl9ydF90aW50b3MgPSBwcmVkaWN0KGRlY2lzaW9uX3RyZWVfdGludG9zLCB0aW50b3NfdGVzdClcbmFjY3VyYWN5X3J0X3RpbnRvcyA9IDEgLSAoc3VtKGFicyh0aW50b3NfdGVzdCRxdWFsaXR5IC0gcHJlZGljdGlvbl9ydF90aW50b3MpKSAvIHN1bSh0aW50b3NfdGVzdCRxdWFsaXR5KSlcbnByaW50KGFjY3VyYWN5X3J0X3RpbnRvcylcbmBgYCJ9 -->
+<pre class="r"><code>prediction_rt_tintos = predict(decision_tree_tintos, tintos_test)
+accuracy_rt_tintos = 1 - (sum(abs(tintos_test$quality - prediction_rt_tintos)) / sum(tintos_test$quality))
+print(accuracy_rt_tintos)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuOTA4NjA0XG4ifQ== -->
+<pre><code>[1] 0.908604</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="percentual-de-acerto-da-arvore-de-regressao-na-base-de-teste-dos-vinhos-brancos" class="section level4">
+<h4>Percentual de acerto da arvore de regressao na base de teste dos vinhos brancos</h4>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJlZGljdGlvbl9ydF9icmFuY29zID0gcHJlZGljdChkZWNpc2lvbl90cmVlX2JyYW5jb3MsIGJyYW5jb3NfdGVzdClcbmFjY3VyYWN5X3J0X2JyYW5jb3MgPSAxIC0gKHN1bShhYnMoYnJhbmNvc190ZXN0JHF1YWxpdHkgLSBwcmVkaWN0aW9uX3J0X2JyYW5jb3MpKSAvIHN1bShicmFuY29zX3Rlc3QkcXVhbGl0eSkpXG5wcmludChhY2N1cmFjeV9ydF9icmFuY29zKVxuYGBgIn0= -->
+<pre class="r"><code>prediction_rt_brancos = predict(decision_tree_brancos, brancos_test)
+accuracy_rt_brancos = 1 - (sum(abs(brancos_test$quality - prediction_rt_brancos)) / sum(brancos_test$quality))
+print(accuracy_rt_brancos)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDAuODk4Njc1NVxuIn0= -->
+<pre><code>[1] 0.8986755</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
 </div>
 <div id="analise-1" class="section level3">
 <h3>Analise</h3>
@@ -540,10 +765,10 @@ quality                       -0.18510029 -0.17491923 -0.05773139  0.251397079  
 <div id="sobre-a-tecnica-2" class="section level3">
 <h3>Sobre a tecnica</h3>
 </div>
-<div id="variavel-dependente-2" class="section level3">
+<div id="variavel-dependente-1" class="section level3">
 <h3>Variavel dependente</h3>
 </div>
-<div id="variaveis-independentes-2" class="section level3">
+<div id="variaveis-independentes-1" class="section level3">
 <h3>Variaveis independentes</h3>
 </div>
 <div id="grafico-variavel-dependente-x-variaveis-independentes-2" class="section level3">
@@ -561,10 +786,10 @@ quality                       -0.18510029 -0.17491923 -0.05773139  0.251397079  
 <div id="sobre-a-tecnica-3" class="section level3">
 <h3>Sobre a tecnica</h3>
 </div>
-<div id="variavel-dependente-3" class="section level3">
+<div id="variavel-dependente-2" class="section level3">
 <h3>Variavel dependente</h3>
 </div>
-<div id="variaveis-independentes-3" class="section level3">
+<div id="variaveis-independentes-2" class="section level3">
 <h3>Variaveis independentes</h3>
 </div>
 <div id="grafico-variavel-dependente-x-variaveis-independentes-3" class="section level3">
@@ -580,7 +805,7 @@ quality                       -0.18510029 -0.17491923 -0.05773139  0.251397079  
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQojIFJlY29uaGVjaW1lbnRvIGRhIGJhc2UNCg0KIyMgVmluaG9zIGJyYW5jb3MNCg0KQ2FycmVnYW5kbyBkYWRvcyBlIG1vc3RyYW5kbyBhcyAxMCBwcmltZWlyYXMgbGluaGFzDQpgYGB7cn0NCmJyYW5jb3MgPSByZWFkLmNzdigid2luZXF1YWxpdHktd2hpdGUuY3N2IiwgaGVhZGVyID0gVFJVRSwgc2VwID0gIjsiKTsNCmhlYWQoYnJhbmNvcywgMTApOw0KYGBgDQoNCg0KQ29sdW5hcw0KYGBge3J9DQpjb2xuYW1lcyhicmFuY29zKQ0KYGBgDQoNClZhbG9yZXMgTkENCmBgYHtyfQ0KY29sU3Vtcyhpcy5uYShicmFuY29zKSkNCmBgYA0KDQpUaXBvcw0KYGBge3J9DQpzYXBwbHkoYnJhbmNvcywgdHlwZW9mKTsNCmBgYA0KDQpodHRwczovL3d3dy5zdGF0bWV0aG9kcy5uZXQvYWR2Z3JhcGhzL2NvcnJlbG9ncmFtcy5odG1sDQpodHRwczovL3N0YWNrb3ZlcmZsb3cuY29tL3F1ZXN0aW9ucy8xNjE2MTk1NC9ob3ctdG8tYWRkLXAtdmFsdWVzLWZvci1jb3JyZWxhdGlvbi1jb2VmZmljaWVudHMtcGxvdHRlZC11c2luZy1zcGxvbS1pbi1sYXR0aWNlDQoNClJlc3VtbyBkZSBjYXJhY3RlcmlzdGljYXMNCmBgYHtyfQ0Kc3VtbWFyeShicmFuY29zKTsNCmBgYA0KDQoNCiMjIFZpbmhvcyB0aW50b3MNCg0KYGBge3J9DQp0aW50b3MgPSByZWFkLmNzdigid2luZXF1YWxpdHktcmVkLmNzdiIsIGhlYWRlciA9IFRSVUUsIHNlcCA9ICI7Iik7DQpoZWFkKHRpbnRvcywgMTApOw0KYGBgDQoNCiMgQW5hbGlzZSBleHBsb3JhdG9yaWEgZG9zIGRhZG9zDQoNCg0KIyMgRGV0ZWNjYW8gZGUgb3V0bGllcnMNCmBgYHtyfQ0KYm94cGxvdChzY2FsZShicmFuY29zWywgLTEyXSkpDQpgYGANCg0KIyMgVmluaG8gYnJhbmNvDQoNCiMjIyBQbG90YWdlbSBkb3MgZGFkb3MNCg0KIyMjIEdyYWZpY28gZGUgY29ycmVsYWNhbw0KYGBge3J9DQpsaWJyYXJ5KGNvcnJncmFtKQ0KY29yKGJyYW5jb3MpDQpjb3JyZ3JhbShicmFuY29zLCBvcmRlcj1UUlVFLCBsb3dlci5wYW5lbD1wYW5lbC5jb3IsDQogIHVwcGVyLnBhbmVsPXBhbmVsLnBpZSwgdGV4dC5wYW5lbD1wYW5lbC50eHQsDQogIG1haW49IldpbmUgcXVhbGl0eSIpDQpgYGANCiMjIyBCb3hwbG90DQpgYGB7cn0NCmJveHBsb3QoYWxjb2hvbH5xdWFsaXR5LCBkYXRhPWJyYW5jb3MsIG1haW49J0JveHBsb3QgZGUgYWxjb29sIHBvciBxdWFsaWRhZGUgKEJyYW5jb3MpJywgeGxhYj0nUXVhbGlkYWRlJywgeWxhYj0nQWxjb29sJykNCmBgYA0KDQpgYGB7cn0NCmJveHBsb3Qodm9sYXRpbGUuYWNpZGl0eX5xdWFsaXR5LCBkYXRhPWJyYW5jb3MsIG1haW49J0JveHBsb3QgZGUgYWNpZGVzIHZvbGF0aWwgcG9yIHF1YWxpZGFkZSAoQnJhbmNvcyknLCB4bGFiPSdRdWFsaWRhZGUnLCB5bGFiPSdBY2lkZXMgVm9sYXRpbCcpDQpgYGANCg0KYGBge3J9DQpib3hwbG90KGNobG9yaWRlc35xdWFsaXR5LCBkYXRhPWJyYW5jb3MsIG1haW49J0JveHBsb3QgZGUgY2hsb3JpZGVzIHBvciBxdWFsaWRhZGUgKEJyYW5jb3MpJywgeGxhYj0nUXVhbGlkYWRlJywgeWxhYj0nQ2hsb3JpZGVzJykNCmBgYA0KDQoNCiMjIyBBbmFsaXNlIGNyaXRpY2ENCg0KIyMgVmluaG8gdGludG8NCg0KIyMjIFBsb3RhZ2VtIGRvcyBkYWRvcw0KDQojIyMgR3JhZmljbyBkZSBjb3JyZWxhY2FvDQpgYGB7cn0NCmNvcih0aW50b3MpDQpjb3JyZ3JhbSh0aW50b3MsIG9yZGVyPVRSVUUsIGxvd2VyLnBhbmVsPXBhbmVsLmNvciwNCiAgdXBwZXIucGFuZWw9cGFuZWwucGllLCB0ZXh0LnBhbmVsPXBhbmVsLnR4dCwNCiAgbWFpbj0iV2luZSBxdWFsaXR5IikNCmBgYA0KIyMjIEJveHBsb3QNCmBgYHtyfQ0KYm94cGxvdChhbGNvaG9sfnF1YWxpdHksIGRhdGE9dGludG9zLCBtYWluPSdCb3hwbG90IGRlIGFsY29vbCBwb3IgcXVhbGlkYWRlIChUaW50b3MpJywgeGxhYj0nUXVhbGlkYWRlJywgeWxhYj0nQWxjb29sJykNCmBgYA0KDQpgYGB7cn0NCmJveHBsb3Qodm9sYXRpbGUuYWNpZGl0eX5xdWFsaXR5LCBkYXRhPXRpbnRvcywgbWFpbj0nQm94cGxvdCBkZSBhY2lkZXMgdm9sYXRpbCBwb3IgcXVhbGlkYWRlIChUaW50b3MpJywgeGxhYj0nUXVhbGlkYWRlJywgeWxhYj0nQWNpZGVzIFZvbGF0aWwnKQ0KYGBgDQoNCmBgYHtyfQ0KYm94cGxvdChjaGxvcmlkZXN+cXVhbGl0eSwgZGF0YT10aW50b3MsIG1haW49J0JveHBsb3QgZGUgY2hsb3JpZGVzIHBvciBxdWFsaWRhZGUgKFRpbnRvcyknLCB4bGFiPSdRdWFsaWRhZGUnLCB5bGFiPSdDaGxvcmlkZXMnKQ0KYGBgDQoNCiMjIyBBbmFsaXNlIGNyaXRpY2ENCg0KIyMgRGVjaXNhbzogVmluaG8gYnJhbmNvIG91IHRpbnRvPw0KUmVzcG9zdGE6IEFzIHJlbGFjb2VzIGVudHJlIGFzIHZhcmlhdmVpcyBlIGEgcXVhbGlkYWRlIGRvcyB2aW5ob3MgYXByZXNlbnRhbSB1bWEgZ3JhbmRlIGRpc3RpbmNhbyBlbnRyZSB2aW5ob3MgdGludG9zIGUgYnJhbmNvcy4gUG9yIGVzc2UgbW90aXZvLCBtb2RlbG9zIHNpbXBsaWZpY2Fkb3MgY29tbywgcmVncmVzc29lcyBsaW5lYXJlcyBlIHJlZ3Jlc3NvZXMgbG9naXN0aWNhcyB0ZXJpYW0gZGlmaWN1bGRhZGUgY29tIGEgdW5pYW8gZGFzIGJhc2VzLiBKYSBtb2RlbG9zIGNvbW8gYXJ2b3JlIGRlIGRlY2lzYW8gZSByZW5kb20gZm9yZXN0IGNvbnNlZ3VlbSBsaWRhciBmYWNpbG1lbnRlIGNvbSBjYXRlZ29yaWFzIGRpc3RpbnRhcyBlbSB1bSBtZXNtbyBtb2RlbG8uDQoNCiMjIFVzbyBkZSBjb21wb25lbnRlcyBwcmluY2lwYWlzOg0KUmVzcG9zdGE6IE5hIGFuYWxpc2UgZGUgY29ycmVsYWNvZXMgZSBwb3NzaXZlbCB2ZXJpZmljYXIgcXVlIGV4aXN0ZW0gdmFyaWF2ZWlzIGNvbSBncmFuZGUgY29ycmVsYWNhbyBlbnRyZSBzaSwgY29tbzogYWNpZGVzIGUgcGgsIGFjaWRlcyBmaXhhIGUgYWNpZGVzIGNpdHJpY2EsIGRpb3hpZG8gdG90YWwgZSBsaXZyZS4gRXNzYXMgY29ycmVsYWNvZXMgZW50cmUgdmFyaWF2ZWlzIGluZGVwZW5kZW50ZXMgcG9kZW0gY2F1c2FyIG11bHRpY29saW5lYXJpZGFkZSBubyBtb2RlbG8sIHBvZGVuZG8gcmVzdWx0YXIgZW0gb3ZlcmZpdGluZyBlIHBlcmRhIGRlIGdlbmVyYWxpemFjYW8uIFBvciBpc3NvIG8gdXNvIGRlIGNvbXBvbmVudGVzIHByaW5jaXBhaXMgcG9kZSB0cmF6ZXIgZ2FuaG9zLg0KDQojIyBSZW1vY2FvIGRlIG91dGxpZXJzDQpSZXNwb3N0YTogQSBhbmFsaXNlIGRlIGRldGVjY2FvIGRlIG91dGxpZXJzIGFwcmVzZW50b3UgdW1hIHF1YW50aWRhZGUgbXVpdG8gZ3JhbmRlIGRlIG91dGxpZXJzIG5hIGJhc2UsIHBvcmVtLCBzZSBleGlzdGVtIHRhbnRvcyBvdXRsaWVycywgcHJvdmF2ZWxtZW50ZSBuYW8gc2FvLiBOb3NzYSBhYm9yZGFnZW0gc2VyYSBtYW50ZXIgdG9kb3Mgb3MgZGFkb3MgbmEgYmFzZS4NCg0KIyBHZXJhY2FvIGRlIG1vZGVsb3MNCg0KIyMgUmVncmVzc2FvIGxpbmVhcg0KDQojIyMgU29icmUgYSB0ZWNuaWNhDQoNCiMjIyBWYXJpYXZlbCBkZXBlbmRlbnRlDQoNCiMjIyBWYXJpYXZlaXMgaW5kZXBlbmRlbnRlcw0KDQojIyMgR3JhZmljbyB2YXJpYXZlbCBkZXBlbmRlbnRlIFggdmFyaWF2ZWlzIGluZGVwZW5kZW50ZXMNCg0KIyMjIFF1YWxpZGFkZSBkbyBtb2RlbG8NCg0KIyMjIEFuYWxpc2UNCg0KDQojIyBBcnZvcmUgZGUgcmVncmVzc8Ojbw0KDQojIyMgU29icmUgYSB0ZWNuaWNhDQoNCiMjIyBWYXJpYXZlbCBkZXBlbmRlbnRlDQoNCiMjIyBWYXJpYXZlaXMgaW5kZXBlbmRlbnRlcw0KDQojIyMgR3JhZmljbyB2YXJpYXZlbCBkZXBlbmRlbnRlIFggdmFyaWF2ZWlzIGluZGVwZW5kZW50ZXMNCg0KIyMjIFF1YWxpZGFkZSBkbyBtb2RlbG8NCg0KIyMjIEFuYWxpc2UNCg0KDQojIyBBcnZvcmUgZGUgZGVjaXNhbw0KDQojIyMgU29icmUgYSB0ZWNuaWNhDQoNCiMjIyBWYXJpYXZlbCBkZXBlbmRlbnRlDQoNCiMjIyBWYXJpYXZlaXMgaW5kZXBlbmRlbnRlcw0KDQojIyMgR3JhZmljbyB2YXJpYXZlbCBkZXBlbmRlbnRlIFggdmFyaWF2ZWlzIGluZGVwZW5kZW50ZXMNCg0KIyMjIFF1YWxpZGFkZSBkbyBtb2RlbG8NCg0KIyMjIEFuYWxpc2UNCg0KDQojIyBSZWdyZXNzYW8gbG9nYXN0aWNhDQoNCiMjIyBTb2JyZSBhIHRlY25pY2ENCg0KIyMjIFZhcmlhdmVsIGRlcGVuZGVudGUNCg0KIyMjIFZhcmlhdmVpcyBpbmRlcGVuZGVudGVzDQoNCiMjIyBHcmFmaWNvIHZhcmlhdmVsIGRlcGVuZGVudGUgWCB2YXJpYXZlaXMgaW5kZXBlbmRlbnRlcw0KDQojIyMgUXVhbGlkYWRlIGRvIG1vZGVsbw0KDQojIyMgQW5hbGlzZQ0KDQoNCg0KDQoNCg==</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQojIFJlY29uaGVjaW1lbnRvIGRhIGJhc2UNCg0KIyMgVmluaG9zIGJyYW5jb3MNCg0KQ2FycmVnYW5kbyBkYWRvcyBlIG1vc3RyYW5kbyBhcyAxMCBwcmltZWlyYXMgbGluaGFzDQpgYGB7cn0NCmJyYW5jb3MgPSByZWFkLmNzdigid2luZXF1YWxpdHktd2hpdGUuY3N2IiwgaGVhZGVyID0gVFJVRSwgc2VwID0gIjsiKTsNCmhlYWQoYnJhbmNvcywgMTApOw0KYGBgDQoNCg0KQ29sdW5hcw0KYGBge3J9DQpjb2xuYW1lcyhicmFuY29zKQ0KYGBgDQoNClZhbG9yZXMgTkENCmBgYHtyfQ0KY29sU3Vtcyhpcy5uYShicmFuY29zKSkNCmBgYA0KDQpUaXBvcw0KYGBge3J9DQpzYXBwbHkoYnJhbmNvcywgdHlwZW9mKTsNCmBgYA0KDQpodHRwczovL3d3dy5zdGF0bWV0aG9kcy5uZXQvYWR2Z3JhcGhzL2NvcnJlbG9ncmFtcy5odG1sDQpodHRwczovL3N0YWNrb3ZlcmZsb3cuY29tL3F1ZXN0aW9ucy8xNjE2MTk1NC9ob3ctdG8tYWRkLXAtdmFsdWVzLWZvci1jb3JyZWxhdGlvbi1jb2VmZmljaWVudHMtcGxvdHRlZC11c2luZy1zcGxvbS1pbi1sYXR0aWNlDQoNClJlc3VtbyBkZSBjYXJhY3RlcmlzdGljYXMNCmBgYHtyfQ0Kc3VtbWFyeShicmFuY29zKTsNCmBgYA0KDQoNCiMjIFZpbmhvcyB0aW50b3MNCg0KYGBge3J9DQp0aW50b3MgPSByZWFkLmNzdigid2luZXF1YWxpdHktcmVkLmNzdiIsIGhlYWRlciA9IFRSVUUsIHNlcCA9ICI7Iik7DQpoZWFkKHRpbnRvcywgMTApOw0KYGBgDQoNCiMgQW5hbGlzZSBleHBsb3JhdG9yaWEgZG9zIGRhZG9zDQoNCg0KIyMgRGV0ZWNjYW8gZGUgb3V0bGllcnMNCmBgYHtyfQ0KYm94cGxvdChzY2FsZShicmFuY29zWywgLTEyXSkpDQpgYGANCg0KIyMgVmluaG8gYnJhbmNvDQoNCiMjIyBQbG90YWdlbSBkb3MgZGFkb3MNCg0KIyMjIEdyYWZpY28gZGUgY29ycmVsYWNhbw0KYGBge3J9DQpsaWJyYXJ5KGNvcnJncmFtKQ0KY29yKGJyYW5jb3MpDQpjb3JyZ3JhbShicmFuY29zLCBvcmRlcj1UUlVFLCBsb3dlci5wYW5lbD1wYW5lbC5jb3IsDQogIHVwcGVyLnBhbmVsPXBhbmVsLnBpZSwgdGV4dC5wYW5lbD1wYW5lbC50eHQsDQogIG1haW49IldpbmUgcXVhbGl0eSIpDQpgYGANCiMjIyBCb3hwbG90DQpgYGB7cn0NCmJveHBsb3QoYWxjb2hvbH5xdWFsaXR5LCBkYXRhPWJyYW5jb3MsIG1haW49J0JveHBsb3QgZGUgYWxjb29sIHBvciBxdWFsaWRhZGUgKEJyYW5jb3MpJywgeGxhYj0nUXVhbGlkYWRlJywgeWxhYj0nQWxjb29sJykNCmBgYA0KDQpgYGB7cn0NCmJveHBsb3Qodm9sYXRpbGUuYWNpZGl0eX5xdWFsaXR5LCBkYXRhPWJyYW5jb3MsIG1haW49J0JveHBsb3QgZGUgYWNpZGVzIHZvbGF0aWwgcG9yIHF1YWxpZGFkZSAoQnJhbmNvcyknLCB4bGFiPSdRdWFsaWRhZGUnLCB5bGFiPSdBY2lkZXMgVm9sYXRpbCcpDQpgYGANCg0KYGBge3J9DQpib3hwbG90KGNobG9yaWRlc35xdWFsaXR5LCBkYXRhPWJyYW5jb3MsIG1haW49J0JveHBsb3QgZGUgY2hsb3JpZGVzIHBvciBxdWFsaWRhZGUgKEJyYW5jb3MpJywgeGxhYj0nUXVhbGlkYWRlJywgeWxhYj0nQ2hsb3JpZGVzJykNCmBgYA0KDQoNCiMjIyBBbmFsaXNlIGNyaXRpY2ENCg0KIyMgVmluaG8gdGludG8NCg0KIyMjIFBsb3RhZ2VtIGRvcyBkYWRvcw0KDQojIyMgR3JhZmljbyBkZSBjb3JyZWxhY2FvDQpgYGB7cn0NCmNvcih0aW50b3MpDQpjb3JyZ3JhbSh0aW50b3MsIG9yZGVyPVRSVUUsIGxvd2VyLnBhbmVsPXBhbmVsLmNvciwNCiAgdXBwZXIucGFuZWw9cGFuZWwucGllLCB0ZXh0LnBhbmVsPXBhbmVsLnR4dCwNCiAgbWFpbj0iV2luZSBxdWFsaXR5IikNCmBgYA0KIyMjIEJveHBsb3QNCmBgYHtyfQ0KYm94cGxvdChhbGNvaG9sfnF1YWxpdHksIGRhdGE9dGludG9zLCBtYWluPSdCb3hwbG90IGRlIGFsY29vbCBwb3IgcXVhbGlkYWRlIChUaW50b3MpJywgeGxhYj0nUXVhbGlkYWRlJywgeWxhYj0nQWxjb29sJykNCmBgYA0KDQpgYGB7cn0NCmJveHBsb3Qodm9sYXRpbGUuYWNpZGl0eX5xdWFsaXR5LCBkYXRhPXRpbnRvcywgbWFpbj0nQm94cGxvdCBkZSBhY2lkZXMgdm9sYXRpbCBwb3IgcXVhbGlkYWRlIChUaW50b3MpJywgeGxhYj0nUXVhbGlkYWRlJywgeWxhYj0nQWNpZGVzIFZvbGF0aWwnKQ0KYGBgDQoNCmBgYHtyfQ0KYm94cGxvdChjaGxvcmlkZXN+cXVhbGl0eSwgZGF0YT10aW50b3MsIG1haW49J0JveHBsb3QgZGUgY2hsb3JpZGVzIHBvciBxdWFsaWRhZGUgKFRpbnRvcyknLCB4bGFiPSdRdWFsaWRhZGUnLCB5bGFiPSdDaGxvcmlkZXMnKQ0KYGBgDQoNCiMjIyBBbmFsaXNlIGNyaXRpY2ENCg0KIyMgRGVjaXNhbzogVmluaG8gYnJhbmNvIG91IHRpbnRvPw0KUmVzcG9zdGE6IEFzIHJlbGFjb2VzIGVudHJlIGFzIHZhcmlhdmVpcyBlIGEgcXVhbGlkYWRlIGRvcyB2aW5ob3MgYXByZXNlbnRhbSB1bWEgZ3JhbmRlIGRpc3RpbmNhbyBlbnRyZSB2aW5ob3MgdGludG9zIGUgYnJhbmNvcy4gUG9yIGVzc2UgbW90aXZvLCBtb2RlbG9zIHNpbXBsaWZpY2Fkb3MgY29tbywgcmVncmVzc29lcyBsaW5lYXJlcyBlIHJlZ3Jlc3NvZXMgbG9naXN0aWNhcyB0ZXJpYW0gZGlmaWN1bGRhZGUgY29tIGEgdW5pYW8gZGFzIGJhc2VzLiBKYSBtb2RlbG9zIGNvbW8gYXJ2b3JlIGRlIGRlY2lzYW8gZSByZW5kb20gZm9yZXN0IGNvbnNlZ3VlbSBsaWRhciBmYWNpbG1lbnRlIGNvbSBjYXRlZ29yaWFzIGRpc3RpbnRhcyBlbSB1bSBtZXNtbyBtb2RlbG8uDQoNCiMjIFVzbyBkZSBjb21wb25lbnRlcyBwcmluY2lwYWlzOg0KUmVzcG9zdGE6IE5hIGFuYWxpc2UgZGUgY29ycmVsYWNvZXMgZSBwb3NzaXZlbCB2ZXJpZmljYXIgcXVlIGV4aXN0ZW0gdmFyaWF2ZWlzIGNvbSBhbGd1bWEgY29ycmVsYWNhbyBlbnRyZSBzaSwgY29tbzogYWNpZGVzIGUgcGgsIGFjaWRlcyBmaXhhIGUgYWNpZGVzIGNpdHJpY2EsIGRpb3hpZG8gdG90YWwgZSBsaXZyZS4gRXNzYXMgY29ycmVsYWNvZXMgZW50cmUgdmFyaWF2ZWlzIGluZGVwZW5kZW50ZXMgcG9kZW0gY2F1c2FyIG11bHRpY29saW5lYXJpZGFkZSBubyBtb2RlbG8sIHBvZGVuZG8gcmVzdWx0YXIgZW0gb3ZlcmZpdGluZyBlIHBlcmRhIGRlIGdlbmVyYWxpemFjYW8uIFBvcmVtLCBuZWh1bWEgZGVsYXMg6SBtYWlvciBxdWUgMC42OCwgZW50428gbuNvIHNlcmEgbmVjZXNzYXJpbyBvIHVzbyBkZSBQQ0EuDQoNCiMjIFJlbW9jYW8gZGUgb3V0bGllcnMNClJlc3Bvc3RhOiBBIGFuYWxpc2UgZGUgZGV0ZWNjYW8gZGUgb3V0bGllcnMgYXByZXNlbnRvdSB1bWEgcXVhbnRpZGFkZSBtdWl0byBncmFuZGUgZGUgb3V0bGllcnMgbmEgYmFzZSwgcG9yZW0sIHNlIGV4aXN0ZW0gdGFudG9zIG91dGxpZXJzLCBwcm92YXZlbG1lbnRlIG5hbyBzYW8uIE5vc3NhIGFib3JkYWdlbSBzZXJhIG1hbnRlciB0b2RvcyBvcyBkYWRvcyBuYSBiYXNlLg0KDQojIEdlcmFjYW8gZGUgbW9kZWxvcw0KDQojIyBTZXBhcmFjYW8gZG9zIGRhZG9zIGVtIHRyZWlubyBlIHRlc3RlDQpgYGB7cn0NCnNhbXBsZV90aW50b3MgPC0gc2FtcGxlLmludChuID0gbnJvdyh0aW50b3MpLCBzaXplID0gZmxvb3IoLjc1Km5yb3codGludG9zKSksIHJlcGxhY2UgPSBGKQ0KdGludG9zX3RyYWluIDwtIHRpbnRvc1tzYW1wbGVfdGludG9zLCBdDQp0aW50b3NfdGVzdCAgPC0gdGludG9zWy1zYW1wbGVfdGludG9zLCBdDQoNCnNhbXBsZV9icmFuY29zIDwtIHNhbXBsZS5pbnQobiA9IG5yb3coYnJhbmNvcyksIHNpemUgPSBmbG9vciguNzUqbnJvdyhicmFuY29zKSksIHJlcGxhY2UgPSBGKQ0KYnJhbmNvc190cmFpbiA8LSBicmFuY29zW3NhbXBsZV9icmFuY29zLCBdDQpicmFuY29zX3Rlc3QgIDwtIGJyYW5jb3NbLXNhbXBsZV9icmFuY29zLCBdDQpgYGANCg0KIyMgUmVncmVzc2FvIGxpbmVhcg0KYGBge3J9DQpsaW5lYXJfbW9kZWxfdGludG9zID0gbG0ocXVhbGl0eSB+IGZpeGVkLmFjaWRpdHkgKyB2b2xhdGlsZS5hY2lkaXR5ICsgY2l0cmljLmFjaWQgKyByZXNpZHVhbC5zdWdhciArICAgICAgDQogICAgICAgICAgICAgICAgY2hsb3JpZGVzICsgZnJlZS5zdWxmdXIuZGlveGlkZSArIHRvdGFsLnN1bGZ1ci5kaW94aWRlICsgZGVuc2l0eSArIHBIICsNCiAgICAgICAgICAgICAgICBzdWxwaGF0ZXMgKyBhbGNvaG9sLCBkYXRhPXRpbnRvc190cmFpbikNCnN1bW1hcnkobGluZWFyX21vZGVsX3RpbnRvcykNCmBgYA0KYGBge3J9DQpsaW5lYXJfbW9kZWxfYnJhbmNvcyA9IGxtKHF1YWxpdHkgfiBmaXhlZC5hY2lkaXR5ICsgdm9sYXRpbGUuYWNpZGl0eSArIGNpdHJpYy5hY2lkICsgcmVzaWR1YWwuc3VnYXIgKyAgICAgIA0KICAgICAgICAgICAgICAgIGNobG9yaWRlcyArIGZyZWUuc3VsZnVyLmRpb3hpZGUgKyB0b3RhbC5zdWxmdXIuZGlveGlkZSArIGRlbnNpdHkgKyBwSCArDQogICAgICAgICAgICAgICAgc3VscGhhdGVzICsgYWxjb2hvbCwgZGF0YT1icmFuY29zX3RyYWluKQ0Kc3VtbWFyeShsaW5lYXJfbW9kZWxfYnJhbmNvcykNCmBgYA0KIyMjIFNvYnJlIGEgdGVjbmljYQ0KDQojIyMgVmFyaWF2ZWwgZGVwZW5kZW50ZQ0KUmVzcG9zdGE6IFF1YWxpdHkNCg0KIyMjIFZhcmlhdmVpcyBpbmRlcGVuZGVudGVzDQpSZXNwb3N0YTogZml4ZWQuYWNpZGl0eSArIHZvbGF0aWxlLmFjaWRpdHkgKyBjaXRyaWMuYWNpZCArIHJlc2lkdWFsLnN1Z2FyICsgICAgICANCiAgICAgICAgICBjaGxvcmlkZXMgKyBmcmVlLnN1bGZ1ci5kaW94aWRlICsgdG90YWwuc3VsZnVyLmRpb3hpZGUgKyBkZW5zaXR5ICsgcEggKw0KICAgICAgICAgIHN1bHBoYXRlcyArIGFsY29ob2wNCg0KIyMjIEdyYWZpY28gdmFyaWF2ZWwgZGVwZW5kZW50ZSBYIHZhcmlhdmVpcyBpbmRlcGVuZGVudGVzDQoNCiMjIyBRdWFsaWRhZGUgZG8gbW9kZWxvDQoNCiMjIyMgUGVyY2VudHVhbCBkZSBhY2VydG8gZGEgcmVncmVzc+NvIGxpbmVhciBuYSBiYXNlIGRlIHRlc3RlIGRvcyB2aW5ob3MgdGludG9zDQpgYGB7cn0NCnByZWRpY3Rpb25fbG1fdGludG9zID0gcHJlZGljdChsaW5lYXJfbW9kZWxfdGludG9zLCB0aW50b3NfdGVzdCkNCmFjY3VyYWN5X2xtX3RpbnRvcyA9IDEgLSAoc3VtKGFicyh0aW50b3NfdGVzdCRxdWFsaXR5IC0gcHJlZGljdGlvbl9sbV90aW50b3MpKSAvIHN1bSh0aW50b3NfdGVzdCRxdWFsaXR5KSkNCnByaW50KGFjY3VyYWN5X2xtX3RpbnRvcykNCmBgYA0KIyMjIyBQZXJjZW50dWFsIGRlIGFjZXJ0byBkYSByZWdyZXNz428gbGluZWFyIG5hIGJhc2UgZGUgdGVzdGUgZG9zIHZpbmhvcyBicmFuY29zDQpgYGB7cn0NCnByZWRpY3Rpb25fbG1fYnJhbmNvcyA9IHByZWRpY3QobGluZWFyX21vZGVsX2JyYW5jb3MsIGJyYW5jb3NfdGVzdCkNCmFjY3VyYWN5X2xtX2JyYW5jb3MgPSAxIC0gKHN1bShhYnMoYnJhbmNvc190ZXN0JHF1YWxpdHkgLSBwcmVkaWN0aW9uX2xtX2JyYW5jb3MpKSAvIHN1bShicmFuY29zX3Rlc3QkcXVhbGl0eSkpDQpwcmludChhY2N1cmFjeV9sbV9icmFuY29zKQ0KYGBgDQoNCiMjIyBBbmFsaXNlDQoNCg0KIyMgQXJ2b3JlIGRlIHJlZ3Jlc3Nhbw0KDQojIyMgVGludG9zDQpgYGB7cn0NCmxpYnJhcnkodHJlZSkNCmRlY2lzaW9uX3RyZWVfdGludG9zID0gdHJlZShxdWFsaXR5IH4gZml4ZWQuYWNpZGl0eSArIHZvbGF0aWxlLmFjaWRpdHkgKyBjaXRyaWMuYWNpZCArIHJlc2lkdWFsLnN1Z2FyICsgICAgICANCiAgICAgICAgICAgICAgICBjaGxvcmlkZXMgKyBmcmVlLnN1bGZ1ci5kaW94aWRlICsgdG90YWwuc3VsZnVyLmRpb3hpZGUgKyBkZW5zaXR5ICsgcEggKw0KICAgICAgICAgICAgICAgIHN1bHBoYXRlcyArIGFsY29ob2wsIGRhdGE9dGludG9zX3RyYWluKQ0KcGxvdChkZWNpc2lvbl90cmVlX3RpbnRvcykNCnRleHQoZGVjaXNpb25fdHJlZV90aW50b3MsIGNleD0wLjcpDQpzdW1tYXJ5KGRlY2lzaW9uX3RyZWVfdGludG9zKQ0KYGBgDQoNCiMjIyBCcmFuY29zDQpgYGB7cn0NCmxpYnJhcnkodHJlZSkNCmRlY2lzaW9uX3RyZWVfYnJhbmNvcyA9IHRyZWUocXVhbGl0eSB+IGZpeGVkLmFjaWRpdHkgKyB2b2xhdGlsZS5hY2lkaXR5ICsgY2l0cmljLmFjaWQgKyByZXNpZHVhbC5zdWdhciArICAgICAgDQogICAgICAgICAgICAgICAgY2hsb3JpZGVzICsgZnJlZS5zdWxmdXIuZGlveGlkZSArIHRvdGFsLnN1bGZ1ci5kaW94aWRlICsgZGVuc2l0eSArIHBIICsNCiAgICAgICAgICAgICAgICBzdWxwaGF0ZXMgKyBhbGNvaG9sLCBkYXRhPWJyYW5jb3NfdHJhaW4pDQpwbG90KGRlY2lzaW9uX3RyZWVfYnJhbmNvcykNCnRleHQoZGVjaXNpb25fdHJlZV9icmFuY29zLCBjZXg9MC43KQ0Kc3VtbWFyeShkZWNpc2lvbl90cmVlX2JyYW5jb3MpDQpgYGANCg0KIyMjIFNvYnJlIGEgdGVjbmljYQ0KDQojIyMgR3JhZmljbyB2YXJpYXZlbCBkZXBlbmRlbnRlIFggdmFyaWF2ZWlzIGluZGVwZW5kZW50ZXMNCg0KIyMjIFF1YWxpZGFkZSBkbyBtb2RlbG8NCg0KIyMjIyBQZXJjZW50dWFsIGRlIGFjZXJ0byBkYSBhcnZvcmUgZGUgcmVncmVzc2FvIG5hIGJhc2UgZGUgdGVzdGUgZG9zIHZpbmhvcyB0aW50b3MNCmBgYHtyfQ0KcHJlZGljdGlvbl9ydF90aW50b3MgPSBwcmVkaWN0KGRlY2lzaW9uX3RyZWVfdGludG9zLCB0aW50b3NfdGVzdCkNCmFjY3VyYWN5X3J0X3RpbnRvcyA9IDEgLSAoc3VtKGFicyh0aW50b3NfdGVzdCRxdWFsaXR5IC0gcHJlZGljdGlvbl9ydF90aW50b3MpKSAvIHN1bSh0aW50b3NfdGVzdCRxdWFsaXR5KSkNCnByaW50KGFjY3VyYWN5X3J0X3RpbnRvcykNCmBgYA0KIyMjIyBQZXJjZW50dWFsIGRlIGFjZXJ0byBkYSBhcnZvcmUgZGUgcmVncmVzc2FvIG5hIGJhc2UgZGUgdGVzdGUgZG9zIHZpbmhvcyBicmFuY29zDQpgYGB7cn0NCnByZWRpY3Rpb25fcnRfYnJhbmNvcyA9IHByZWRpY3QoZGVjaXNpb25fdHJlZV9icmFuY29zLCBicmFuY29zX3Rlc3QpDQphY2N1cmFjeV9ydF9icmFuY29zID0gMSAtIChzdW0oYWJzKGJyYW5jb3NfdGVzdCRxdWFsaXR5IC0gcHJlZGljdGlvbl9ydF9icmFuY29zKSkgLyBzdW0oYnJhbmNvc190ZXN0JHF1YWxpdHkpKQ0KcHJpbnQoYWNjdXJhY3lfcnRfYnJhbmNvcykNCmBgYA0KIyMjIEFuYWxpc2UNCg0KDQojIyBBcnZvcmUgZGUgZGVjaXNhbw0KDQojIyMgU29icmUgYSB0ZWNuaWNhDQoNCiMjIyBWYXJpYXZlbCBkZXBlbmRlbnRlDQoNCiMjIyBWYXJpYXZlaXMgaW5kZXBlbmRlbnRlcw0KDQojIyMgR3JhZmljbyB2YXJpYXZlbCBkZXBlbmRlbnRlIFggdmFyaWF2ZWlzIGluZGVwZW5kZW50ZXMNCg0KIyMjIFF1YWxpZGFkZSBkbyBtb2RlbG8NCg0KIyMjIEFuYWxpc2UNCg0KDQojIyBSZWdyZXNzYW8gbG9nYXN0aWNhDQoNCiMjIyBTb2JyZSBhIHRlY25pY2ENCg0KIyMjIFZhcmlhdmVsIGRlcGVuZGVudGUNCg0KIyMjIFZhcmlhdmVpcyBpbmRlcGVuZGVudGVzDQoNCiMjIyBHcmFmaWNvIHZhcmlhdmVsIGRlcGVuZGVudGUgWCB2YXJpYXZlaXMgaW5kZXBlbmRlbnRlcw0KDQojIyMgUXVhbGlkYWRlIGRvIG1vZGVsbw0KDQojIyMgQW5hbGlzZQ0KDQoNCg0KDQoNCg==</div>
 
 
 
