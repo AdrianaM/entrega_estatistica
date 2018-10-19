@@ -32,7 +32,7 @@ sapply(brancos, typeof);
 https://www.statmethods.net/advgraphs/correlograms.html
 https://stackoverflow.com/questions/16161954/how-to-add-p-values-for-correlation-coefficients-plotted-using-splom-in-lattice
 
-Resumo de características
+Resumo de caracteristicas
 ```{r}
 summary(brancos);
 ```
@@ -45,10 +45,10 @@ tintos = read.csv("winequality-red.csv", header = TRUE, sep = ";");
 head(tintos, 10);
 ```
 
-# Análise exploratória dos dados
+# Analise exploratoria dos dados
 
 
-## Detecção de outliers
+## Deteccao de outliers
 ```{r}
 boxplot(scale(brancos[, -12]))
 ```
@@ -57,92 +57,125 @@ boxplot(scale(brancos[, -12]))
 
 ### Plotagem dos dados
 
-### Gráfico de correlação
+### Grafico de correlacao
 ```{r}
 library(corrgram)
 cor(brancos)
-corrgram(brancos, order=TRUE, lower.panel=panel.shade,
+corrgram(brancos, order=TRUE, lower.panel=panel.cor,
   upper.panel=panel.pie, text.panel=panel.txt,
   main="Wine quality")
 ```
+### Boxplot
+```{r}
+boxplot(alcohol~quality, data=brancos, main='Boxplot de alcool por qualidade (Brancos)', xlab='Qualidade', ylab='Alcool')
+```
 
-### Análise crítica
+```{r}
+boxplot(volatile.acidity~quality, data=brancos, main='Boxplot de acides volatil por qualidade (Brancos)', xlab='Qualidade', ylab='Acides Volatil')
+```
+
+```{r}
+boxplot(chlorides~quality, data=brancos, main='Boxplot de chlorides por qualidade (Brancos)', xlab='Qualidade', ylab='Chlorides')
+```
+
+
+### Analise critica
 
 ## Vinho tinto
 
 ### Plotagem dos dados
 
-### Gráfico de correlação
+### Grafico de correlacao
+```{r}
+cor(tintos)
+corrgram(tintos, order=TRUE, lower.panel=panel.cor,
+  upper.panel=panel.pie, text.panel=panel.txt,
+  main="Wine quality")
+```
+### Boxplot
+```{r}
+boxplot(alcohol~quality, data=tintos, main='Boxplot de alcool por qualidade (Tintos)', xlab='Qualidade', ylab='Alcool')
+```
 
-### Análise crítica
+```{r}
+boxplot(volatile.acidity~quality, data=tintos, main='Boxplot de acides volatil por qualidade (Tintos)', xlab='Qualidade', ylab='Acides Volatil')
+```
 
-## Decisão: Vinho branco ou tinto?
+```{r}
+boxplot(chlorides~quality, data=tintos, main='Boxplot de chlorides por qualidade (Tintos)', xlab='Qualidade', ylab='Chlorides')
+```
 
-## Uso de componentes principais
+### Analise critica
 
-## Remoção de outliers
+## Decisao: Vinho branco ou tinto?
+Resposta: As relacoes entre as variaveis e a qualidade dos vinhos apresentam uma grande distincao entre vinhos tintos e brancos. Por esse motivo, modelos simplificados como, regressoes lineares e regressoes logisticas teriam dificuldade com a uniao das bases. Ja modelos como arvore de decisao e rendom forest conseguem lidar facilmente com categorias distintas em um mesmo modelo.
 
+## Uso de componentes principais:
+Resposta: Na analise de correlacoes e possivel verificar que existem variaveis com grande correlacao entre si, como: acides e ph, acides fixa e acides citrica, dioxido total e livre. Essas correlacoes entre variaveis independentes podem causar multicolinearidade no modelo, podendo resultar em overfiting e perda de generalizacao. Por isso o uso de componentes principais pode trazer ganhos.
 
-# Geração de modelos
+## Remocao de outliers
+Resposta: A analise de deteccao de outliers apresentou uma quantidade muito grande de outliers na base, porem, se existem tantos outliers, provavelmente nao sao. Nossa abordagem sera manter todos os dados na base.
 
-## Regressão linear
+# Geracao de modelos
 
-### Sobre a técnica
+## Regressao linear
 
-### Variável dependente
+### Sobre a tecnica
 
-### Variáveis independentes
+### Variavel dependente
 
-### Gráfico variável dependente X variáveis independentes
+### Variaveis independentes
 
-### Qualidade do modelo
-
-### Análise
-
-
-## Árvore de regressão
-
-### Sobre a técnica
-
-### Variável dependente
-
-### Variáveis independentes
-
-### Gráfico variável dependente X variáveis independentes
-
-### Qualidade do modelo
-
-### Análise
-
-
-## Árvore de decisão
-
-### Sobre a técnica
-
-### Variável dependente
-
-### Variáveis independentes
-
-### Gráfico variável dependente X variáveis independentes
+### Grafico variavel dependente X variaveis independentes
 
 ### Qualidade do modelo
 
-### Análise
+### Analise
 
 
-## Regressão logística
+## Arvore de regressão
 
-### Sobre a técnica
+### Sobre a tecnica
 
-### Variável dependente
+### Variavel dependente
 
-### Variáveis independentes
+### Variaveis independentes
 
-### Gráfico variável dependente X variáveis independentes
+### Grafico variavel dependente X variaveis independentes
 
 ### Qualidade do modelo
 
-### Análise
+### Analise
+
+
+## Arvore de decisao
+
+### Sobre a tecnica
+
+### Variavel dependente
+
+### Variaveis independentes
+
+### Grafico variavel dependente X variaveis independentes
+
+### Qualidade do modelo
+
+### Analise
+
+
+## Regressao logastica
+
+### Sobre a tecnica
+
+### Variavel dependente
+
+### Variaveis independentes
+
+### Grafico variavel dependente X variaveis independentes
+
+### Qualidade do modelo
+
+### Analise
 
 
 
