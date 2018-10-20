@@ -133,6 +133,14 @@ Resposta: Na analise de correlacoes e possivel verificar que existem variaveis c
 ## Remocao de outliers
 Resposta: A analise de deteccao de outliers apresentou uma quantidade muito grande de outliers na base, porem, se existem tantos outliers, provavelmente nao sao. Nossa abordagem sera manter todos os dados na base.
 
+## Variavel dependente
+Resposta: Quality
+
+## Variaveis independentes
+Resposta: fixed.acidity + volatile.acidity + citric.acid + residual.sugar +      
+          chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH +
+          sulphates + alcohol
+          
 # Geracao de modelos
 
 ## Separacao dos dados em treino e teste
@@ -163,16 +171,7 @@ linear_model_brancos = lm(quality ~ fixed.acidity + volatile.acidity + citric.ac
 summary(linear_model_brancos)
 ```
 ### Sobre a tecnica
-
-### Variavel dependente
-Resposta: Quality
-
-### Variaveis independentes
-Resposta: fixed.acidity + volatile.acidity + citric.acid + residual.sugar +      
-          chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH +
-          sulphates + alcohol
-
-### Grafico variavel dependente X variaveis independentes
+Essa tecnica cria uma funcao linear multivariada para prever os novos casos: y = a + bx1 + bx2 ... + bxn
 
 ### Qualidade do modelo
 
@@ -189,14 +188,12 @@ accuracy_lm_brancos = 1 - (sum(abs(brancos_test$quality - prediction_lm_brancos)
 print(accuracy_lm_brancos)
 ```
 
-### Analise
-
-
 ## Arvore de regressao
 
 ### Tintos
 
 ```{r}
+library(tree)
 regression_tree_tintos = tree(quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar +      
                 chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH +
                 sulphates + alcohol, data=tintos_train)
@@ -207,7 +204,7 @@ summary(regression_tree_tintos)
 
 ### Brancos
 ```{r}
-library(tree)
+
 regression_tree_brancos = tree(quality ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar +      
                 chlorides + free.sulfur.dioxide + total.sulfur.dioxide + density + pH +
                 sulphates + alcohol, data=brancos_train)
@@ -217,8 +214,7 @@ summary(regression_tree_brancos)
 ```
 
 ### Sobre a tecnica
-
-### Grafico variavel dependente X variaveis independentes
+Esse modelo controi uma hierarquia de condicionais para prever uma variavel continua
 
 ### Qualidade do modelo
 
@@ -234,10 +230,10 @@ prediction_rt_brancos = predict(regression_tree_brancos, brancos_test)
 accuracy_rt_brancos = 1 - (sum(abs(brancos_test$quality - prediction_rt_brancos)) / sum(brancos_test$quality))
 print(accuracy_rt_brancos)
 ```
-### Analise
 
 
 ## Arvore de decisao
+
 ### Tintos
 ```{r}
 library(tree)
@@ -262,12 +258,7 @@ text(decision_tree_brancos, cex=0.7)
 summary(decision_tree_brancos)
 ```
 ### Sobre a tecnica
-
-### Variavel dependente
-
-### Variaveis independentes
-
-### Grafico variavel dependente X variaveis independentes
+Essa tecnica tambem cria uma hierarquia de condicionais, mas dessa vez para variavel categorica
 
 ### Qualidade do modelo
 
@@ -289,10 +280,8 @@ accuracy_dt_brancos = 1 - (sum(abs(brancos_test$quality - prediction_dt_brancos)
 print(accuracy_dt_brancos)
 ```
 
-### Analise
-
-
 ## Regressao logistica
+
 ### Tintos
 ```{r}
 decision_rlog_tintos = glm(quality_bin ~ fixed.acidity + volatile.acidity + citric.acid + residual.sugar +      
@@ -313,12 +302,7 @@ summary(decision_rlog_brancos)
 
 
 ### Sobre a tecnica
-
-### Variavel dependente
-
-### Variaveis independentes
-
-### Grafico variavel dependente X variaveis independentes
+Essa tecnica cria uma funcao binomial sigmoide para executar uma categorizacao binaria dos dados
 
 ### Qualidade do modelo
 
@@ -339,9 +323,10 @@ prediction_rlog_brancos = predict(decision_rlog_brancos, brancos_test)
 confusion.matrix(brancos_test$quality_bin, prediction_rlog_brancos, threshold = 0.5)
 ```
 
-### Analise
+## Comparacao entre os modelos:
 
+#### Regressao linear: Acerto Tintos 90.9%, acerto Brancos 90%
+#### Arvore de Regressao: Acerto Tintos 90.4%, acerto Brancos 89.7%
+#### Arvore de Decisao: Acerto Tintos 91.3%, acerto Brancos 90.4%
 
-
-
-
+#### Regressao Logistica: Não e possivel comparar pois foi necessario transformar a variavel dependente
